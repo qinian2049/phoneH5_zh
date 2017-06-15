@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="js/public.js"></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+        <title id="title"></title>
+         <link rel="stylesheet" href="css/mobiscroll/css/mobiscroll.custom-3.0.0-beta4.min.css" type="text/css" />
+        <link href="css/publicClear.css" rel="stylesheet">
+        <link href="css/baseLogin.css" rel="stylesheet">
+        <link href="css/fillInAddress.css" rel="stylesheet"/>
+        <link href="css/layer/skin/layer.css" rel="stylesheet"/>
+       
+    </head>
+    <style>
+        #addressList input{
+          width:11rem;
+        }
+        #chooseArea{
+          float: left;
+          width:11rem;
+          height: 100%;
+          line-height:0.8rem;
+        }
+        #districe li{
+          width:100%;
+          height:2rem;
+          font-size: 0.8rem;
+          line-height: 2rem;
+          color:#ccc;
+        }
+    </style>
+     
+     <script>
+         document.getElementsByTagName("html")[0].style.fontSize=document.documentElement.clientWidth/16+"px";
+    </script>
+    <body>
+      <div class="fillBox">
+        <header class="header clear">
+            <span class="back"></span><a href="#" class="mainLogo"></a>
+            <h3 class="pageTitle"><script>writeI18nPageByKey("fillAddressTitle")</script></h3>
+            <span class="save"><script>writeI18nPageByKey("saveBtn")</script></span>
+        </header>
+        <div class="scroll scroll3" id="scroll">
+           <ul class="addressList fontS1" id="addressList">
+                <li class="lineH2 optionTitle">
+                    <span><script>writeI18nPageByKey("receiver")</script>：</span><input type="text" name="trueName" value="" class="address"/>
+                </li>
+                <li class="lineH2 optionTitle">
+                    <span>联系电话：</span><input type="text" style="text-indent:1.1rem;"name="mobile" value="" placeholder="" id="tel"/>
+                </li>
+                <li class="lineH2 optionTitle clear">
+                    <span class="area">所在地区：</span>
+                    <p id="chooseArea"></p>
+                </li>
+                <li class="lineH2 optionTitle ">
+                    <span><script>writeI18nPageByKey("areaPost")</script>：</span><input class="postCode" type="text" name="zip" value="" placeholder=""/>
+                   
+                </li>
+                
+                <li>
+                    <div class="addressBox">
+                        <span>详细地址（1-50个字符）</span>
+                        <textarea name="area_info" id="areaInfo"></textarea>
+                        <input type="hidden" name="area_info" value=""/>
+                    </div>
+                </li>
+           </ul>
+           <div class="blankBk blank5">
+               
+           </div>
+           <div class="defaultAdd color3" id="defaultAdd">
+            <strong class="defBtn"><script>writeI18nPageByKey("setDefault")</script></strong><span class="changebtn" id="changebtn"></span>
+           </div>
+           <div class="blankBk blank5">
+               
+           </div>
+        </div>
+        <input  id="areaId" type="hidden" name="" value=""/>
+    </div>
+    
+        <script src="js/jquery-2.2.1.js"></script>
+		   <script type="text/javascript" src="js/jquerysession.js"></script>
+       <script src="js/jquery.jsonp.js"></script>
+        <script type="text/javascript" src="js/common.js"></script>      
+        <script src="css/layer/layer.js"></script>
+        <script src="js/mobiscroll.custom-3.0.0-beta4.min.js"></script>
+        
+        <script>
+
+          $(document).ready(function(){
+                $("#title").text(getI18nPageByKey("fillAddressTitle"));
+          })
+          $(".back").click(function(){
+          
+           history.back(-1);
+
+          })
+          $("#changebtn").click(function(){
+            $(this).toggleClass('changeCheckedBtn');
+          });
+             var intergalObj=getParam(),
+              manage=intergalObj.manage;
+          function getArea(id,index,chooseDisStr){     
+               Datas({
+                url:"buyer/getAreas",
+                "types":"post",
+                "cache":true,
+                datas:{
+                  "id":id
+                },
+                success:function(data){
+               
+                  if(data.status){
+                    var areaStr="";
+                    if(data.data.length>0){
+                      for(var i=0;i<data.data.length;i++){
+                        areaStr+='<li id='+data.data[i].id+'>'+data.data[i].areaName+'</li>';
+
+
+
+
+                      }
+                    }else{
+                      layer.close(index);
+                      $("#chooseArea").html(chooseDisStr);
+                    }
+                    
+
+                    $("#district").html(areaStr);
+                    $("#district li").css({
+                      "height":"2rem",
+                      "font-size":"0.6rem",
+                      "line-height":"2rem",
+                      "border-bottom":"1px solid #ddd",
+                      "padding-left":"1rem"
+
+
+
+
+                  })
+                   
+
+
+
+
+
+                  }
+                  
+                },
+                error:function(){
+                 
+                }
+
+
+
+
+
+            })
+          }
+          //所在地区;
+          var areaStr='<div id="allArea">'+
+                '<ul id="district">'+
+                  
+                '</ul>'+
+          '</div>';
+         var bottomId;//最底层地址id;
+          
+          $("#chooseArea").click(function(){
+           
+             var chooseDisStr="";
+            var index=layer.open({
+                      type:1,
+                      content:areaStr,
+                      title:"选择所在地区",
+                      closeBtn: 1,
+                      resize :false,
+                      area: ['14.8rem', '15rem']
+
+
+
+
+
+                    })
+            getArea("");
+            
+            
+            $("#district").delegate("li","click",function(){
+                    
+                      var areaName=$(this).text();
+                     
+                      chooseDisStr+=areaName;
+                      var id=$(this).attr("id");
+                      bottomId=id;
+                      $("#district").html("");
+                      getArea(id,index,chooseDisStr);
+                     
+
+
+            })
+
+
+
+
+
+          })
+          
+           //详细地址：必填项，1-50字符；
+           // 邮政编码：必填项，6位数字；
+           // 收货人姓名：必填项，1—25个字符
+           // 手机号：必填项，使用国内手机号码验证规则
+           var reg=/^[1][3587][0-9]{9}$/;
+           var regPost=/^[0-9]\d{5}$/;
+          var regRule = /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g;
+          //点击保存验证；
+          $(".save").click(function(){
+             
+              if($(".address").val().trim().length<=0){
+                layer.msg("收货人姓名不能为空!");
+                return;
+
+
+              }else if($(".address").val().length>25){
+                layer.msg("收货人姓名最多为25个字符!");
+                 return;
+              }else if($(".address").val().match(regRule)){
+                layer.msg("系统错误");
+              }else if(!reg.test($("#tel").val())){
+                layer.msg("电话号码格式错误!");
+                 return;
+              }else if($("#chooseArea").html()==""){
+                layer.msg("所在地区不能为空!");
+                 return;
+              }else if($(".postCode").val().length<=0){
+                layer.msg("邮编不能为空!");
+                 return;
+              }else if(!regPost.test($(".postCode").val())){
+                layer.msg("邮编格式错误!");
+                 return;
+              }else if($.trim($("#areaInfo").val()).length<=0){
+                layer.msg("详细地址不能为空!");
+                 return;
+              }else if($.trim($("#areaInfo").val()).length>50){
+                layer.msg("详细地址最多50个字符!");
+                 return;
+              }else if($("#areaInfo").val().match(regRule)){
+                
+                layer.msg("系统错误");
+              }else{
+                saveAddress(bottomId);
+              }
+
+
+
+
+
+           })
+
+
+        var userNames= $.session.get("userId");//用户
+        if(userNames){
+            $(".defaultAdd").css("display","block");
+        }
+       //判断是否设为默认：
+        function hasDefault(defaultBtn){
+            return defaultBtn.hasClass("changeCheckedBtn");
+            
+        }
+       //点击保存的流程：
+        function saveAddress(bottomId){
+          
+            Datas({
+                    url:"buyer/cart_address_save",
+                    "types":"post",
+                    datas:{
+                        "user_id":userNames,
+                        "area_id":bottomId,
+                        "trueName":$("input[name=trueName]").val(),
+                        "area_info":$("textarea[name=area_info]").val(),
+                        "mobile":$("input[name=mobile]").val(),
+                        "zip":$("input[name=zip]").val(),
+                        "defaultAddress":hasDefault($(".changebtn"))?1:0   //是否设为默认
+                    },
+                    success:function(data){
+                     
+                       if(data.status){
+                          $.session.set("fillFlag",true);
+                          $.session.set("addressId",data.data.id);
+                          layer.msg(getI18nPageByKey("saveSuccess"));
+                         if(!manage){
+                              window.location.href="manageAddress.html";  
+                         }else{
+                             window.location.href="manageAddress.html?manage="+manage;
+                         }
+                       }
+                        
+                        
+                        
+                       
+                      
+                    },
+                    error:function(data){
+                        layer.msg(data.message);
+                    }
+                })
+        }
+       
+       
+       
+
+        </script>
+    </body>
+</html>
